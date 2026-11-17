@@ -1,50 +1,71 @@
 # Telepromptrius
 
+**English** · [Italiano](README.it.md)
+
 <p align="center">
   <a href="https://github.com/enricovezzu/telepromptrius/releases/latest/download/Telepromptrius.dmg">
-    <img src="https://img.shields.io/badge/Scarica%20per%20Mac-Telepromptrius.dmg-0A84FF?style=for-the-badge&logo=apple&logoColor=white" alt="Scarica per Mac" height="44">
+    <img src="https://img.shields.io/badge/Download%20for%20Mac-Telepromptrius.dmg-0A84FF?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Mac" height="44">
   </a>
-  <br><sub>Ultima versione · macOS 26 o successivo · chip Apple e Intel</sub>
+  <br><sub>Free and open source · macOS 26 or later · Apple silicon and Intel</sub>
 </p>
 
-Teleprompter per Mac: sul tuo schermo il testo è dritto, sullo schermo esteso è specchiato nel modo che scegli
-(orizzontale per i teleprompter con vetro, verticale o ruotato di 180°).
+**A free teleprompter for the Mac.** You read the script straight on your own screen. On the external display under the teleprompter glass, it scrolls mirrored, so it reads correctly in the reflection.
 
-- Libreria dei testi con ricerca, importazione da Word/RTF/testo
-- Testi sincronizzati in **iCloud Drive → Telepromptrius** (un file `.txt` per testo, modificabili anche da iPhone/iPad)
-- Scorrimento fluido a 120 Hz, trackpad, telecomando da presentazione (Pagina su/giù)
-- Mini monitor che mostra lo schermo esteso come appare davvero
-- Aggiornamenti automatici dalle release di GitHub, con firma verificata
-- In 20 lingue: italiano, inglese, spagnolo, francese, tedesco, portoghese, cinese (semplificato e tradizionale), giapponese, coreano, russo, ucraino, arabo, hindi, turco, olandese, polacco, vietnamita, indonesiano, thailandese
+<p align="center"><img src="docs/demo.gif" alt="Telepromptrius scrolling a script, with the mirrored mini monitor on the right" width="900"></p>
 
-Richiede macOS 26 o successivo (chip Apple o Intel).
+## Features
 
-## Installare
-Premi **Scarica per Mac** qui sopra (o prendi il DMG dall'ultima [release](../../releases/latest)), apri il file e trascina l'app in Applicazioni.
-La prima volta: Impostazioni di Sistema → Privacy e sicurezza → **Apri comunque** (l'app non è notarizzata da Apple).
-Dalle volte successive si aggiorna da sola.
+- **Mirroring for beam-splitter glass:** horizontal, vertical or rotated 180°, applied only to the external display.
+- **Mini monitor:** shows exactly what the external display is showing, so you never have to turn around and check.
+- **Smooth 120 Hz scrolling:** works with ProMotion, and you can scroll with the trackpad or a presentation clicker (Page Up and Page Down).
+- **Script library:** search your scripts and import from Word, RTF, Markdown or plain text.
+- **Synced with iCloud Drive:** each script is a plain `.txt` file in *iCloud Drive → Telepromptrius*, so you can edit it from your iPhone or iPad too.
+- **Words per minute and read-time estimate:** shown for every script.
+- **Text appearance:** choose the font, size, margins, line spacing and color, and turn the reading marker on or off.
+- **Dark and light themes:** with a Liquid Glass design.
+- **20 languages:** English, Italian, Spanish, French, German, Portuguese, Chinese (Simplified and Traditional), Japanese, Korean, Russian, Ukrainian, Arabic, Hindi, Turkish, Dutch, Polish, Vietnamese, Indonesian and Thai.
+- **Automatic updates:** every update package is signed and checked before it is installed.
+
+<p align="center"><img src="docs/library.png" alt="The script library" width="900"></p>
+
+## Install
+
+1. Download **[Telepromptrius.dmg](https://github.com/enricovezzu/telepromptrius/releases/latest/download/Telepromptrius.dmg)**, open it and drag the app into **Applications**.
+2. **The first time only:** the app is not notarized by Apple, because it is a free project without a paid developer account. So macOS will say it can't verify the app.
+   1. Click **Done**.
+   2. Open **System Settings → Privacy & Security**.
+   3. Scroll down and click **Open Anyway** next to Telepromptrius.
+3. From then on, the app updates itself.
+
+## Keyboard shortcuts
+
+| Key | Action |
+|---|---|
+| Space or Page Down | Play / pause |
+| Page Up | Jump back |
+| ↑ ↓ | Change the speed |
+| ← → | Change the text size |
+| R | Back to the start |
+| M | Change the mirror mode |
+| Esc | Close the full-screen teleprompter |
+| ⌘L / ⌘E / ⌘I | Library / editor / side panels |
 
 ## Privacy
-L'app non raccoglie né invia dati. Per gli aggiornamenti fa una richiesta anonima all'API pubblica di GitHub
-(`releases/latest` di questo repository). I testi restano sul tuo Mac e nel tuo iCloud Drive.
 
-## Sviluppo
-Serve solo Xcode Command Line Tools (`xcode-select --install`).
+Telepromptrius collects nothing. It never contacts any server except one anonymous request to GitHub's public API, to check whether there is a newer version. Your scripts stay on your Mac and in your iCloud Drive.
 
-| Comando | Cosa fa |
-|---|---|
-| `./build.sh` | compila per il chip di questo Mac e installa in /Applications |
-| `./dist.sh` | crea in `dist/` il DMG universale, il pacchetto di aggiornamento `.zip` e la sua firma |
-| `python3 tools/check-lang.py` | controlla che ogni lingua in `lang/` abbia tutti i testi dell'app |
-| `./release.sh "novità"` | pubblica su GitHub la versione scritta in `Info.plist` (chi ha l'app la riceve al prossimo avvio) |
-| `tools/keygen.sh` | una volta sola: crea la chiave di firma degli aggiornamenti (privata nel Portachiavi, pubblica in `Info.plist`) |
+## Build from source
 
-Per una nuova versione: aumenta `CFBundleShortVersionString` in `Info.plist`, fai il commit, poi `./release.sh "cosa cambia"`.
+You only need the Xcode Command Line Tools (`xcode-select --install`).
 
-**La chiave privata di firma sta solo nel Portachiavi di questo Mac** (voce "Telepromptrius – chiave aggiornamenti").
-Se la perdi, chi ha l'app non potrà più aggiornarsi da sola e dovrà reinstallarla a mano.
+```bash
+./build.sh            # builds for this Mac's chip and installs it in /Applications
+./dist.sh             # builds the universal DMG and the signed update package in dist/
+python3 tools/check-lang.py   # checks that every language in lang/ has every string
+```
 
-Prova veloce: `open -a Telepromptrius --args --prompter` apre direttamente l'ultimo testo.
+The whole app is a single SwiftUI and AppKit file, `main.swift`. Translations are in `lang/<code>.lproj/Localizable.strings`, and the keys are the Italian strings.
 
-## Licenza
-MIT, vedi [LICENSE](LICENSE).
+## License
+
+[MIT](LICENSE) © 2026 Enrico Vezzù

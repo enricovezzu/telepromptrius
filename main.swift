@@ -108,6 +108,8 @@ enum Library {
     static var inICloud: Bool { FileManager.default.fileExists(atPath: iCloudRoot.path) }
 
     static let folder: URL = {
+        // Solo per prove e screenshot: TP_LIBRARY_DIR usa un'altra cartella di testi.
+        if let d = ProcessInfo.processInfo.environment["TP_LIBRARY_DIR"] { return URL(fileURLWithPath: d, isDirectory: true) }
         let base = inICloud
             ? iCloudRoot.appendingPathComponent("Telepromptrius", isDirectory: true)
             : FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -355,6 +357,7 @@ final class TeleState: NSObject, ObservableObject {
             self?.rescan()
         }
         if CommandLine.arguments.contains("--prompter"), currentID != nil { showLibrary = false }   // apertura diretta (prove)
+        if CommandLine.arguments.contains("--play") { DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.toggle() } }
         DispatchQueue.main.async { [weak self] in self?.applyAppearance() }
         refreshScreens()
 
