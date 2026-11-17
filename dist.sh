@@ -14,6 +14,7 @@ cp -R "$BUILD/Telepromptrius.app" "$STAGE/"
 ln -s /Applications "$STAGE/Applicazioni"
 cp tools/Leggimi-prima-apertura.txt "$STAGE/Leggimi - prima apertura.txt"
 hdiutil create -volname "Telepromptrius" -srcfolder "$STAGE" -ov -format UDZO "$OUT/Telepromptrius-$VER.dmg" >/dev/null 2>&1
+cp "$OUT/Telepromptrius-$VER.dmg" "$OUT/Telepromptrius.dmg"   # nome fisso per il bottone Scarica del README
 ditto -c -k --keepParent "$BUILD/Telepromptrius.app" "$OUT/Telepromptrius-$VER.zip"
 if KEY=$(security find-generic-password -s telepromptrius-update -a "$USER" -w 2>/dev/null); then
   TP_KEY="$KEY" swift tools/sign.swift sign "$OUT/Telepromptrius-$VER.zip" > "$OUT/Telepromptrius-$VER.zip.sig"

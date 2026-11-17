@@ -1,5 +1,12 @@
 # Telepromptrius
 
+<p align="center">
+  <a href="https://github.com/enricovezzu/telepromptrius/releases/latest/download/Telepromptrius.dmg">
+    <img src="https://img.shields.io/badge/Scarica%20per%20Mac-Telepromptrius.dmg-0A84FF?style=for-the-badge&logo=apple&logoColor=white" alt="Scarica per Mac" height="44">
+  </a>
+  <br><sub>Ultima versione · macOS 26 o successivo · chip Apple e Intel</sub>
+</p>
+
 Teleprompter per Mac: sul tuo schermo il testo è dritto, sullo schermo esteso è specchiato nel modo che scegli
 (orizzontale per i teleprompter con vetro, verticale o ruotato di 180°).
 
@@ -12,7 +19,7 @@ Teleprompter per Mac: sul tuo schermo il testo è dritto, sullo schermo esteso �
 Richiede macOS 26 o successivo (chip Apple o Intel).
 
 ## Installare
-Scarica `Telepromptrius-<versione>.dmg` dall'ultima [release](../../releases/latest), trascina l'app in Applicazioni.
+Premi **Scarica per Mac** qui sopra (o prendi il DMG dall'ultima [release](../../releases/latest)), apri il file e trascina l'app in Applicazioni.
 La prima volta: Impostazioni di Sistema → Privacy e sicurezza → **Apri comunque** (l'app non è notarizzata da Apple).
 Dalle volte successive si aggiorna da sola.
 
