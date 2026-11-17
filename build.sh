@@ -26,6 +26,7 @@ else
 fi
 cp Info.plist "$APP/Contents/Info.plist"
 cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp -R lang/*.lproj "$APP/Contents/Resources/"
 codesign --force --sign - "$APP"
 echo "Creata $APP ($(lipo -archs "$APP/Contents/MacOS/Telepromptrius"))"
 if (( INSTALL )); then

@@ -4,6 +4,10 @@ import Combine
 import UniformTypeIdentifiers
 import CryptoKit
 
+/// Traduzioni: la chiave è il testo italiano, le altre lingue stanno in <lingua>.lproj/Localizable.strings.
+func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
+func LF(_ key: String, _ args: CVarArg...) -> String { String(format: L(key), arguments: args) }
+
 // MARK: - Modelli
 
 enum MirrorMode: String, CaseIterable, Identifiable {
@@ -11,18 +15,18 @@ enum MirrorMode: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .none: return "Dritto (nessuno specchio)"
-        case .horizontal: return "Specchio orizzontale ↔"
-        case .vertical: return "Specchio verticale ↕"
-        case .rotated: return "Ruotato di 180°"
+        case .none: return L("Dritto (nessuno specchio)")
+        case .horizontal: return L("Specchio orizzontale ↔")
+        case .vertical: return L("Specchio verticale ↕")
+        case .rotated: return L("Ruotato di 180°")
         }
     }
     var hint: String {
         switch self {
-        case .none: return "Testo normale"
-        case .horizontal: return "Per teleprompter con vetro/beam splitter"
-        case .vertical: return "Capovolto sopra-sotto"
-        case .rotated: return "Specchio orizzontale + verticale"
+        case .none: return L("Testo normale")
+        case .horizontal: return L("Per teleprompter con vetro/beam splitter")
+        case .vertical: return L("Capovolto sopra-sotto")
+        case .rotated: return L("Specchio orizzontale + verticale")
         }
     }
     var sx: CGFloat { (self == .horizontal || self == .rotated) ? -1 : 1 }
@@ -37,7 +41,7 @@ enum TextTint: String, CaseIterable, Identifiable {
     case white, yellow, green, cyan
     var id: String { rawValue }
     var title: String {
-        switch self { case .white: return "Bianco"; case .yellow: return "Giallo"; case .green: return "Verde"; case .cyan: return "Azzurro" }
+        switch self { case .white: return L("Bianco"); case .yellow: return L("Giallo"); case .green: return L("Verde"); case .cyan: return L("Azzurro") }
     }
     var ns: NSColor {
         switch self {
@@ -80,13 +84,13 @@ struct Script: Codable, Identifiable, Equatable {
 
     var displayTitle: String {
         let t = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        return t.isEmpty ? "Senza titolo" : t
+        return t.isEmpty ? L("Senza titolo") : t
     }
     var wordCount: Int { text.split(whereSeparator: { $0.isWhitespace }).count }
     /// Durata stimata a un ritmo di lettura naturale (150 parole al minuto).
     var estimate: String {
         let sec = wordCount * 60 / 150
-        return sec < 60 ? "< 1 min" : "≈ \(Int((Double(sec) / 60).rounded())) min"
+        return sec < 60 ? L("< 1 min") : LF("≈ %ld min", Int((Double(sec) / 60).rounded()))
     }
 
     static func titleFrom(_ text: String) -> String {
@@ -179,7 +183,7 @@ enum Library {
         var base = title.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
             .trimmingCharacters(in: .whitespacesAndNewlines)
         if base.hasPrefix(".") { base = String(base.drop(while: { $0 == "." })) }
-        if base.isEmpty { base = "Senza titolo" }
+        if base.isEmpty { base = L("Senza titolo") }
         if base.count > 80 { base = String(base.prefix(80)) }
         let lower = Set(taken.map { $0.lowercased() })
         func free(_ n: String) -> Bool {
@@ -501,7 +505,7 @@ final class TeleState: NSObject, ObservableObject {
             if let name = sc.fileName, let known = sc.diskDate, let onDisk = Library.modDate(name),
                onDisk.timeIntervalSince(known) > 1,
                let remote = Library.readText(Library.folder.appendingPathComponent(name)), remote != sc.text {
-                let copyName = Library.fileName(for: sc.displayTitle + " (conflitto)", taken: taken.union([name]))
+                let copyName = Library.fileName(for: sc.displayTitle + " (" + L("conflitto") + ")", taken: taken.union([name]))
                 if Library.write(sc.text, to: copyName) {
                     conflicts.append(Script(title: Library.stem(copyName), text: sc.text, fileName: copyName, diskDate: Library.modDate(copyName)))
                     sc.text = remote; sc.diskDate = onDisk; sc.modified = onDisk
@@ -605,7 +609,7 @@ final class TeleState: NSObject, ObservableObject {
     }
 
     func newScript() {
-        let sc = Script(title: "Nuovo testo", text: "")
+        let sc = Script(title: L("Nuovo testo"), text: "")
         scripts.append(sc)
         dirty.insert(sc.id)
         open(sc.id)
@@ -614,7 +618,7 @@ final class TeleState: NSObject, ObservableObject {
 
     func duplicate(_ id: UUID) {
         guard var sc = scripts.first(where: { $0.id == id }) else { return }
-        sc.id = UUID(); sc.title = sc.displayTitle + " (copia)"; sc.modified = Date(); sc.fileName = nil
+        sc.id = UUID(); sc.title = sc.displayTitle + " (" + L("copia") + ")"; sc.modified = Date(); sc.fileName = nil
         scripts.append(sc)
         dirty.insert(sc.id)
     }
@@ -645,7 +649,7 @@ final class TeleState: NSObject, ObservableObject {
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = false
         panel.allowedContentTypes = [.plainText, .rtf, .rtfd] + ["docx", "doc", "odt", "md"].compactMap { UTType(filenameExtension: $0) }
-        panel.message = "Scegli uno o più testi da importare (Word, RTF, testo)"
+        panel.message = L("Scegli uno o più testi da importare (Word, RTF, testo)")
         guard panel.runModal() == .OK else { return }
         var added: [Script] = []
         for url in panel.urls {
@@ -663,7 +667,7 @@ final class TeleState: NSObject, ObservableObject {
     func refreshScreens() {
         screens = NSScreen.screens.enumerated().map { i, s in
             let size = "\(Int(s.frame.width))×\(Int(s.frame.height))"
-            return ScreenInfo(id: s.displayID, name: "\(s.localizedName) (\(size))\(i == 0 ? " – principale" : "")")
+            return ScreenInfo(id: s.displayID, name: "\(s.localizedName) (\(size))\(i == 0 ? " – " + L("principale") : "")")
         }
         let all = NSScreen.screens
         guard !all.isEmpty else { return }
@@ -980,25 +984,25 @@ struct ControlView: View {
         .toolbar {
             if !s.showLibrary {
                 ToolbarItemGroup(placement: .navigation) {
-                    Button { s.goToLibrary() } label: { Label("Testi", systemImage: "chevron.left") }
+                    Button { s.goToLibrary() } label: { Label(L("Testi"), systemImage: "chevron.left") }
                         .labelStyle(.titleAndIcon)
-                        .help("Torna ai tuoi testi (⌘L)")
+                        .help(L("Torna ai tuoi testi (⌘L)"))
                         .keyboardShortcut("l", modifiers: .command)
                     Button { s.showEditor.toggle() } label: { Image(systemName: "sidebar.left") }
-                        .help("Mostra/nascondi il testo (⌘E)")
+                        .help(L("Mostra/nascondi il testo (⌘E)"))
                         .keyboardShortcut("e", modifiers: .command)
                 }
             }
             ToolbarItemGroup(placement: .primaryAction) {
                 Button { s.toggleExternal() } label: {
-                    Label(s.externalOpen ? "Chiudi" : "Proietta",
+                    Label(s.externalOpen ? L("Chiudi") : L("Proietta"),
                           systemImage: s.externalOpen ? "xmark.rectangle.fill" : "play.rectangle.on.rectangle")
                 }
                 .tint(s.externalOpen ? .red : .accentColor)
-                .help("Apri/chiudi il teleprompter a tutto schermo (Esc per chiudere)")
+                .help(L("Apri/chiudi il teleprompter a tutto schermo (Esc per chiudere)"))
                 if !s.showLibrary {
                     Button { s.showInspector.toggle() } label: { Image(systemName: "sidebar.right") }
-                        .help("Mostra/nascondi le tendine (⌘I)")
+                        .help(L("Mostra/nascondi le tendine (⌘I)"))
                         .keyboardShortcut("i", modifiers: .command)
                 }
             }
@@ -1039,10 +1043,10 @@ struct ControlView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Circle().fill(s.externalOpen ? Color.red : Color.secondary).frame(width: 7, height: 7)
-                Text(s.externalOpen ? "Schermo esteso · in onda" : "Schermo esteso · chiuso")
+                Text(s.externalOpen ? L("Schermo esteso · in onda") : L("Schermo esteso · chiuso"))
                     .font(.caption2.weight(.semibold))
                 Spacer(minLength: 4)
-                Text(s.mirror == .none ? "dritto" : "specchiato").font(.caption2).foregroundStyle(.secondary)
+                Text(s.mirror == .none ? L("dritto") : L("specchiato")).font(.caption2).foregroundStyle(.secondary)
             }
             TeleprompterView(s: s, mirror: s.mirror)
                 .aspectRatio(s.targetAspect, contentMode: .fit)
@@ -1051,7 +1055,7 @@ struct ControlView: View {
         }
         .padding(12)
         .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .help("Come si vede lo schermo secondario")
+        .help(L("Come si vede lo schermo secondario"))
     }
 
     // Testo
@@ -1071,13 +1075,13 @@ struct ControlView: View {
 
     private var editorPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
-            TextField("Titolo", text: Binding(get: { s.currentTitle }, set: { s.currentTitle = $0 }))
+            TextField(L("Titolo"), text: Binding(get: { s.currentTitle }, set: { s.currentTitle = $0 }))
                 .textFieldStyle(.plain)
                 .font(.title3.bold())
             HStack {
-                Label("Testo", systemImage: "text.alignleft").font(.subheadline).foregroundStyle(.secondary)
+                Label(L("Testo"), systemImage: "text.alignleft").font(.subheadline).foregroundStyle(.secondary)
                 Spacer()
-                Text("\(wordCount) parole · ≈ \(duration)")
+                Text(LF("%ld parole · ≈ %@", wordCount, duration))
                     .font(.caption).foregroundStyle(.secondary).monospacedDigit()
             }
             TextEditor(text: $s.text)
@@ -1096,22 +1100,22 @@ struct ControlView: View {
         GlassEffectContainer(spacing: 12) {
             HStack(spacing: 18) {
                 Button { s.reset() } label: { Image(systemName: "backward.end.fill").font(.title3).frame(width: 30, height: 26) }
-                    .buttonStyle(.glass).help("Torna all'inizio (R)")
+                    .buttonStyle(.glass).help(L("Torna all'inizio (R)"))
                 Button { s.toggle() } label: {
                     Image(systemName: s.playing ? "pause.fill" : "play.fill").font(.title2).frame(width: 60, height: 30)
                 }
                 .buttonStyle(.glassProminent)
                 .keyboardShortcut(.return, modifiers: .command)
-                .help("Avvia/pausa (Spazio)")
+                .help(L("Avvia/pausa (Spazio)"))
 
                 PositionSlider(clock: s.clock, s: s)
 
                 Divider().frame(height: 30)
                 Image(systemName: "speedometer").font(.title3).foregroundStyle(.secondary)
                 Slider(value: $s.speed, in: 5...400).frame(width: 170)
-                Text("\(wordsPerMinute) parole/min").monospacedDigit().foregroundStyle(.secondary)
+                Text(LF("%@ parole/min", wordsPerMinute)).monospacedDigit().foregroundStyle(.secondary)
                     .frame(width: 92, alignment: .leading)
-                    .help("Velocità di lettura stimata")
+                    .help(L("Velocità di lettura stimata"))
                 Image(systemName: "textformat.size").font(.title3).foregroundStyle(.secondary)
                 Slider(value: $s.fontSize, in: 24...200).frame(width: 170)
             }
@@ -1162,48 +1166,48 @@ struct ControlView: View {
     private var inspectorDrawers: some View {
         ScrollView {
             VStack(spacing: 10) {
-                drawer("mirror", "Specchio", "arrow.left.and.right.righttriangle.left.righttriangle.right") {
+                drawer("mirror", L("Specchio"), "arrow.left.and.right.righttriangle.left.righttriangle.right") {
                     Picker("", selection: $s.mirror) {
                         ForEach(MirrorMode.allCases) { Text($0.title).tag($0) }
                     }.pickerStyle(.radioGroup).labelsHidden()
                     Text(s.mirror.hint).font(.caption).foregroundStyle(.secondary)
-                    Toggle("Mini monitor dello schermo esteso", isOn: $s.showMini)
-                    Toggle("Anteprima grande specchiata", isOn: $s.previewMirrored)
+                    Toggle(L("Mini monitor dello schermo esteso"), isOn: $s.showMini)
+                    Toggle(L("Anteprima grande specchiata"), isOn: $s.previewMirrored)
                 }
-                drawer("screen", "Schermo esterno", "display") {
+                drawer("screen", L("Schermo esterno"), "display") {
                     Picker("", selection: $s.screenID) {
                         ForEach(s.screens) { Text($0.name).tag($0.id) }
                     }.labelsHidden()
                     if s.screens.count < 2 {
-                        Label("Nessun monitor esterno collegato: Proietta coprirà questo schermo. Esc per chiudere.",
+                        Label(L("Nessun monitor esterno collegato: Proietta coprirà questo schermo. Esc per chiudere."),
                               systemImage: "exclamationmark.triangle.fill")
                             .font(.caption).foregroundStyle(.orange)
                     }
                     Button { s.toggleExternal() } label: {
-                        Label(s.externalOpen ? "Chiudi schermo esterno" : "Proietta a tutto schermo",
+                        Label(s.externalOpen ? L("Chiudi schermo esterno") : L("Proietta a tutto schermo"),
                               systemImage: s.externalOpen ? "xmark.rectangle" : "play.rectangle.on.rectangle")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.glass).controlSize(.large)
                 }
-                drawer("text", "Aspetto del testo", "textformat") {
-                    Picker("Font", selection: $s.fontName) {
-                        Text("Sistema").tag("")
+                drawer("text", L("Aspetto del testo"), "textformat") {
+                    Picker(L("Font"), selection: $s.fontName) {
+                        Text(L("Sistema")).tag("")
                         ForEach(TeleState.fontFamilies, id: \.self) { Text($0).tag($0) }
                     }
-                    Toggle("Grassetto", isOn: $s.bold)
-                    labeled("Margini", $s.margin, 0...300)
-                    labeled("Interlinea", $s.lineSpacing, 0...80)
-                    Picker("Colore", selection: $s.tint) {
+                    Toggle(L("Grassetto"), isOn: $s.bold)
+                    labeled(L("Margini"), $s.margin, 0...300)
+                    labeled(L("Interlinea"), $s.lineSpacing, 0...80)
+                    Picker(L("Colore"), selection: $s.tint) {
                         ForEach(TextTint.allCases) { Text($0.title).tag($0) }
                     }.pickerStyle(.segmented).labelsHidden()
-                    Toggle("Indicatore di lettura", isOn: $s.showGuide)
+                    Toggle(L("Indicatore di lettura"), isOn: $s.showGuide)
                 }
-                drawer("theme", "Tema e scorciatoie", "circle.lefthalf.filled") {
+                drawer("theme", L("Tema e scorciatoie"), "circle.lefthalf.filled") {
                     Picker("", selection: $s.appearance) {
-                        Text("Scuro").tag("dark"); Text("Chiaro").tag("light"); Text("Sistema").tag("system")
+                        Text(L("Scuro")).tag("dark"); Text(L("Chiaro")).tag("light"); Text(L("Sistema")).tag("system")
                     }.pickerStyle(.segmented).labelsHidden()
-                    Text("Spazio o Pagina giù avvia/pausa · Pagina su torna indietro · clic sull'anteprima per uscire dal testo · ↑↓ velocità · ←→ dimensione · M specchio · R inizio · Esc chiude lo schermo esteso · ⌘E testo · ⌘I tendine · trackpad per scorrere.")
+                    Text(L("Spazio o Pagina giù avvia/pausa · Pagina su torna indietro · clic sull'anteprima per uscire dal testo · ↑↓ velocità · ←→ dimensione · M specchio · R inizio · Esc chiude lo schermo esteso · ⌘E testo · ⌘I tendine · trackpad per scorrere."))
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -1242,42 +1246,42 @@ struct LibraryView: View {
             }
         }
         .padding(.horizontal, 32).padding(.top, 20)
-        .alert("Rinomina testo", isPresented: Binding(get: { s.renameID != nil }, set: { if !$0 { s.renameID = nil } })) {
-            TextField("Titolo", text: $s.renameText)
-            Button("Rinomina") { s.commitRename() }.keyboardShortcut(.defaultAction)
-            Button("Annulla", role: .cancel) { s.renameID = nil }
+        .alert(L("Rinomina testo"), isPresented: Binding(get: { s.renameID != nil }, set: { if !$0 { s.renameID = nil } })) {
+            TextField(L("Titolo"), text: $s.renameText)
+            Button(L("Rinomina")) { s.commitRename() }.keyboardShortcut(.defaultAction)
+            Button(L("Annulla"), role: .cancel) { s.renameID = nil }
         }
         .confirmationDialog(deleteTitle, isPresented: Binding(get: { s.deleteID != nil }, set: { if !$0 { s.deleteID = nil } })) {
-            Button("Elimina", role: .destructive) { if let id = s.deleteID { s.delete(id) } }
-            Button("Annulla", role: .cancel) { s.deleteID = nil }
-        } message: { Text("Il file del testo verrà spostato nel Cestino.") }
+            Button(L("Elimina"), role: .destructive) { if let id = s.deleteID { s.delete(id) } }
+            Button(L("Annulla"), role: .cancel) { s.deleteID = nil }
+        } message: { Text(L("Il file del testo verrà spostato nel Cestino.")) }
     }
 
     private var deleteTitle: String {
         let name = s.scripts.first(where: { $0.id == s.deleteID })?.displayTitle ?? ""
-        return "Eliminare «\(name)»?"
+        return LF("Eliminare «%@»?", name)
     }
 
     private var header: some View {
         HStack(alignment: .center, spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("I tuoi testi").font(.largeTitle.bold())
+                Text(L("I tuoi testi")).font(.largeTitle.bold())
                 HStack(spacing: 6) {
-                    Text(s.scripts.count == 1 ? "1 testo" : "\(s.scripts.count) testi")
-                    Text("·")
+                    Text(s.scripts.count == 1 ? L("1 testo") : LF("%ld testi", s.scripts.count))
+                    Text(L("·"))
                     Button { s.revealFolder() } label: {
-                        Label(Library.inICloud ? "in iCloud Drive" : "in questo Mac",
+                        Label(Library.inICloud ? L("in iCloud Drive") : L("in questo Mac"),
                               systemImage: Library.inICloud ? "icloud" : "internaldrive")
                     }
                     .buttonStyle(.plain)
-                    .help("Mostra la cartella dei testi nel Finder")
+                    .help(L("Mostra la cartella dei testi nel Finder"))
                 }
                 .foregroundStyle(.secondary)
             }
             Spacer()
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField("Cerca nei testi", text: $s.librarySearch).textFieldStyle(.plain)
+                TextField(L("Cerca nei testi"), text: $s.librarySearch).textFieldStyle(.plain)
                 if !s.librarySearch.isEmpty {
                     Button { s.librarySearch = "" } label: { Image(systemName: "xmark.circle.fill") }
                         .buttonStyle(.plain).foregroundStyle(.secondary)
@@ -1286,10 +1290,10 @@ struct LibraryView: View {
             .padding(.horizontal, 14).padding(.vertical, 9)
             .frame(width: 260)
             .glassEffect(.regular, in: .capsule)
-            Button { s.importScripts() } label: { Label("Importa…", systemImage: "square.and.arrow.down") }
+            Button { s.importScripts() } label: { Label(L("Importa…"), systemImage: "square.and.arrow.down") }
                 .buttonStyle(.glass).controlSize(.large)
-                .help("Importa da Word, RTF o file di testo")
-            Button { s.newScript() } label: { Label("Nuovo testo", systemImage: "plus") }
+                .help(L("Importa da Word, RTF o file di testo"))
+            Button { s.newScript() } label: { Label(L("Nuovo testo"), systemImage: "plus") }
                 .buttonStyle(.glassProminent).controlSize(.large)
                 .keyboardShortcut("n", modifiers: .command)
         }
@@ -1300,10 +1304,10 @@ struct LibraryView: View {
             Spacer()
             Image(systemName: s.scripts.isEmpty ? "text.page" : "magnifyingglass")
                 .font(.system(size: 54)).foregroundStyle(.secondary)
-            Text(s.scripts.isEmpty ? "Nessun testo" : "Nessun risultato per «\(s.librarySearch)»").font(.title2.bold())
+            Text(s.scripts.isEmpty ? L("Nessun testo") : LF("Nessun risultato per «%@»", s.librarySearch)).font(.title2.bold())
             if s.scripts.isEmpty {
-                Text("Crea un testo nuovo o importane uno da Word, RTF o file di testo.").foregroundStyle(.secondary)
-                Button { s.newScript() } label: { Label("Nuovo testo", systemImage: "plus") }
+                Text(L("Crea un testo nuovo o importane uno da Word, RTF o file di testo.")).foregroundStyle(.secondary)
+                Button { s.newScript() } label: { Label(L("Nuovo testo"), systemImage: "plus") }
                     .buttonStyle(.glassProminent).controlSize(.large)
             }
             Spacer()
@@ -1319,17 +1323,17 @@ struct LibraryView: View {
                     Text(sc.displayTitle)
                         .font(.title3.bold()).lineLimit(2)
                         .padding(.trailing, 28)
-                    Text(sc.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Testo vuoto" : sc.text)
+                    Text(sc.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? L("Testo vuoto") : sc.text)
                         .font(.callout).foregroundStyle(.secondary)
                         .lineLimit(4)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Spacer(minLength: 0)
                     HStack(spacing: 6) {
-                        Text("\(sc.wordCount) parole · \(sc.estimate)")
+                        Text(LF("%ld parole · %@", sc.wordCount, sc.estimate))
                         Spacer(minLength: 8)
                         if isCurrent {
                             Circle().fill(.tint).frame(width: 6, height: 6)
-                            Text("Ultimo aperto")
+                            Text(L("Ultimo aperto"))
                         } else {
                             Text(sc.modified, format: .relative(presentation: .named))
                         }
@@ -1360,11 +1364,11 @@ struct LibraryView: View {
     }
 
     @ViewBuilder private func cardActions(_ sc: Script) -> some View {
-        Button { s.open(sc.id) } label: { Label("Apri", systemImage: "play.rectangle") }
-        Button { s.askRename(sc.id) } label: { Label("Rinomina…", systemImage: "pencil") }
-        Button { s.duplicate(sc.id) } label: { Label("Duplica", systemImage: "plus.square.on.square") }
+        Button { s.open(sc.id) } label: { Label(L("Apri"), systemImage: "play.rectangle") }
+        Button { s.askRename(sc.id) } label: { Label(L("Rinomina…"), systemImage: "pencil") }
+        Button { s.duplicate(sc.id) } label: { Label(L("Duplica"), systemImage: "plus.square.on.square") }
         Divider()
-        Button(role: .destructive) { s.deleteID = sc.id } label: { Label("Elimina…", systemImage: "trash") }
+        Button(role: .destructive) { s.deleteID = sc.id } label: { Label(L("Elimina…"), systemImage: "trash") }
     }
 }
 
@@ -1386,7 +1390,7 @@ enum UpdateWindow {
         w.titleVisibility = .hidden
         w.isMovableByWindowBackground = true
         w.isReleasedWhenClosed = false
-        w.title = "Aggiornamento disponibile"
+        w.title = L("Aggiornamento disponibile")
         w.standardWindowButton(.miniaturizeButton)?.isHidden = true
         w.standardWindowButton(.zoomButton)?.isHidden = true
         let finish: (UpdateChoice) -> Void = { c in w.close(); window = nil; done(c) }
@@ -1421,14 +1425,14 @@ struct UpdateView: View {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable().frame(width: 68, height: 68)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("NUOVA VERSIONE").font(.caption.weight(.semibold)).foregroundStyle(.tint)
+                    Text(L("NUOVA VERSIONE")).font(.caption.weight(.semibold)).foregroundStyle(.tint)
                     Text("Telepromptrius \(version)").font(.title2.weight(.bold))
-                    Text("Ora hai la versione \(current)").font(.callout).foregroundStyle(.secondary)
+                    Text(LF("Ora hai la versione %@", current)).font(.callout).foregroundStyle(.secondary)
                 }
             }
             if !notes.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Cosa c'è di nuovo").font(.headline)
+                    Text(L("Cosa c'è di nuovo")).font(.headline)
                     ScrollView {
                         VStack(alignment: .leading, spacing: 10) {
                             ForEach(notes.indices, id: \.self) { i in
@@ -1449,13 +1453,13 @@ struct UpdateView: View {
                 .glassEffect(.regular, in: .rect(cornerRadius: 20))
             }
             HStack(spacing: 10) {
-                Button("Salta questa versione") { act(.skip) }
+                Button(L("Salta questa versione")) { act(.skip) }
                     .buttonStyle(.glass)
                 Spacer()
-                Button("Più tardi") { act(.later) }
+                Button(L("Più tardi")) { act(.later) }
                     .buttonStyle(.glass)
                     .keyboardShortcut(.cancelAction)
-                Button("Aggiorna e riavvia") { act(.update) }
+                Button(L("Aggiorna e riavvia")) { act(.update) }
                     .buttonStyle(.glassProminent)
                     .keyboardShortcut(.defaultAction)
             }
@@ -1507,7 +1511,7 @@ final class Updater {
                 self.busy = false
                 UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "lastUpdateCheck")
                 guard let data, let rel = try? JSONDecoder().decode(Release.self, from: data) else {
-                    if userInitiated { self.alert("Impossibile controllare gli aggiornamenti", "Controlla la connessione a internet e riprova.") }
+                    if userInitiated { self.alert(L("Impossibile controllare gli aggiornamenti"), L("Controlla la connessione a internet e riprova.")) }
                     return
                 }
                 let latest = rel.tag_name.trimmingCharacters(in: CharacterSet(charactersIn: "vV"))
@@ -1515,7 +1519,7 @@ final class Updater {
                     if !userInitiated && UserDefaults.standard.string(forKey: "skippedVersion") == latest { return }
                     self.offer(rel, version: latest)
                 } else if userInitiated {
-                    self.alert("Telepromptrius è aggiornata", "Hai già la versione più recente (\(self.current)).")
+                    self.alert(L("Telepromptrius è aggiornata"), LF("Hai già la versione più recente (%@).", self.current))
                 }
             }
         }.resume()
@@ -1548,16 +1552,16 @@ final class Updater {
     private func install(_ rel: Release) {
         let target = Bundle.main.bundleURL
         if target.path.hasPrefix("/Volumes/") {
-            alert("Sposta prima l'app in Applicazioni", "Telepromptrius è aperta dall'immagine disco: trascinala in Applicazioni, aprila da lì e riprova.")
+            alert(L("Sposta prima l'app in Applicazioni"), L("Telepromptrius è aperta dall'immagine disco: trascinala in Applicazioni, aprila da lì e riprova."))
             return
         }
         guard FileManager.default.isWritableFile(atPath: target.deletingLastPathComponent().path) else {
-            failed(rel, "Non ho i permessi per sostituire l'app in \(target.deletingLastPathComponent().path).")
+            failed(rel, LF("Non ho i permessi per sostituire l'app in %@.", target.deletingLastPathComponent().path))
             return
         }
         guard let zip = rel.assets.first(where: { $0.name.hasSuffix(".zip") }),
               let sig = rel.assets.first(where: { $0.name == zip.name + ".sig" }) else {
-            failed(rel, "In questa versione manca il pacchetto di aggiornamento automatico.")
+            failed(rel, L("In questa versione manca il pacchetto di aggiornamento automatico."))
             return
         }
         Task {
@@ -1566,7 +1570,7 @@ final class Updater {
                 let zipData = try Data(contentsOf: zipFile)
                 let (sigData, _) = try await URLSession.shared.data(from: sig.browser_download_url)
                 guard self.verify(zipData, signature: sigData) else {
-                    throw UpdateError(errorDescription: "La firma dell'aggiornamento non corrisponde: per sicurezza non lo installo.")
+                    throw UpdateError(errorDescription: L("La firma dell'aggiornamento non corrisponde: per sicurezza non lo installo."))
                 }
                 let work = FileManager.default.temporaryDirectory.appendingPathComponent("telepromptrius-update-\(UUID().uuidString)")
                 try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
@@ -1575,7 +1579,7 @@ final class Updater {
                 try Self.run("/usr/bin/ditto", ["-x", "-k", zipPath.path, work.path])
                 let newApp = work.appendingPathComponent("Telepromptrius.app")
                 guard let b = Bundle(url: newApp), b.bundleIdentifier == Bundle.main.bundleIdentifier else {
-                    throw UpdateError(errorDescription: "Il pacchetto scaricato non contiene Telepromptrius.")
+                    throw UpdateError(errorDescription: L("Il pacchetto scaricato non contiene Telepromptrius."))
                 }
                 await MainActor.run { self.replaceAndRelaunch(target: target, with: newApp) }
             } catch {
@@ -1605,22 +1609,22 @@ final class Updater {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/bin/sh")
         p.arguments = ["-c", script]
-        do { try p.run() } catch { alert("Aggiornamento non riuscito", error.localizedDescription); return }
+        do { try p.run() } catch { alert(L("Aggiornamento non riuscito"), error.localizedDescription); return }
         NSApp.terminate(nil)
     }
 
     private static func run(_ tool: String, _ args: [String]) throws {
         let p = Process(); p.executableURL = URL(fileURLWithPath: tool); p.arguments = args
         try p.run(); p.waitUntilExit()
-        guard p.terminationStatus == 0 else { throw UpdateError(errorDescription: "Non riesco ad aprire il pacchetto scaricato.") }
+        guard p.terminationStatus == 0 else { throw UpdateError(errorDescription: L("Non riesco ad aprire il pacchetto scaricato.")) }
     }
 
     private func failed(_ rel: Release, _ why: String) {
         let a = NSAlert()
-        a.messageText = "Aggiornamento non riuscito"
-        a.informativeText = why + "\n\nPuoi scaricare la nuova versione a mano dalla pagina di GitHub."
-        a.addButton(withTitle: "Apri la pagina")
-        a.addButton(withTitle: "Chiudi")
+        a.messageText = L("Aggiornamento non riuscito")
+        a.informativeText = why + "\n\n" + L("Puoi scaricare la nuova versione a mano dalla pagina di GitHub.")
+        a.addButton(withTitle: L("Apri la pagina"))
+        a.addButton(withTitle: L("Chiudi"))
         if a.runModal() == .alertFirstButtonReturn, let u = URL(string: rel.html_url) { NSWorkspace.shared.open(u) }
     }
 
@@ -1647,14 +1651,14 @@ struct TeleprompterApp: App {
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .appInfo) {
-                Button("Informazioni su Telepromptrius") {
+                Button(L("Informazioni su Telepromptrius")) {
                     let credits = NSAttributedString(
-                        string: "Teleprompter con schermo esteso specchiato.\nI testi sono in iCloud Drive → Telepromptrius.",
+                        string: L("Teleprompter con schermo esteso specchiato.\nI testi sono in iCloud Drive → Telepromptrius."),
                         attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor])
                     NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
                     NSApp.activate()
                 }
-                Button("Controlla aggiornamenti…") { Updater.shared.check(userInitiated: true) }
+                Button(L("Controlla aggiornamenti…")) { Updater.shared.check(userInitiated: true) }
             }
         }
     }

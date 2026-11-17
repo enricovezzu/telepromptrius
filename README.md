@@ -15,6 +15,7 @@ Teleprompter per Mac: sul tuo schermo il testo è dritto, sullo schermo esteso �
 - Scorrimento fluido a 120 Hz, trackpad, telecomando da presentazione (Pagina su/giù)
 - Mini monitor che mostra lo schermo esteso come appare davvero
 - Aggiornamenti automatici dalle release di GitHub, con firma verificata
+- In 20 lingue: italiano, inglese, spagnolo, francese, tedesco, portoghese, cinese (semplificato e tradizionale), giapponese, coreano, russo, ucraino, arabo, hindi, turco, olandese, polacco, vietnamita, indonesiano, thailandese
 
 Richiede macOS 26 o successivo (chip Apple o Intel).
 
@@ -34,6 +35,7 @@ Serve solo Xcode Command Line Tools (`xcode-select --install`).
 |---|---|
 | `./build.sh` | compila per il chip di questo Mac e installa in /Applications |
 | `./dist.sh` | crea in `dist/` il DMG universale, il pacchetto di aggiornamento `.zip` e la sua firma |
+| `python3 tools/check-lang.py` | controlla che ogni lingua in `lang/` abbia tutti i testi dell'app |
 | `./release.sh "novità"` | pubblica su GitHub la versione scritta in `Info.plist` (chi ha l'app la riceve al prossimo avvio) |
 | `tools/keygen.sh` | una volta sola: crea la chiave di firma degli aggiornamenti (privata nel Portachiavi, pubblica in `Info.plist`) |
 
