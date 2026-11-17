@@ -36,3 +36,6 @@ Per una nuova versione: aumenta `CFBundleShortVersionString` in `Info.plist`, fa
 Se la perdi, chi ha l'app non potrà più aggiornarsi da sola e dovrà reinstallarla a mano.
 
 Prova veloce: `open -a Telepromptrius --args --prompter` apre direttamente l'ultimo testo.
+
+## Licenza
+MIT, vedi [LICENSE](LICENSE).
