@@ -48,5 +48,9 @@ Se la perdi, chi ha l'app non potrà più aggiornarsi da sola e dovrà reinstall
 
 Prova veloce: `open -a Telepromptrius --args --prompter` apre direttamente l'ultimo testo.
 
+## Sostieni il progetto
+
+Telepromptrius è gratis e resterà gratis. Se ti fa risparmiare un abbonamento, puoi [offrirmi un caffè su PayPal](https://paypal.me/enricovezzu) ☕ Aiuta anche mettere una stella al repo o passarlo a chi registra video.
+
 ## Licenza
 MIT, vedi [LICENSE](LICENSE).

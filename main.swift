@@ -1662,6 +1662,9 @@ struct TeleprompterApp: App {
                     NSApp.activate()
                 }
                 Button(L("Controlla aggiornamenti…")) { Updater.shared.check(userInitiated: true) }
+                if let link = Bundle.main.object(forInfoDictionaryKey: "TPDonateURL") as? String, let url = URL(string: link) {
+                    Button(L("Sostieni Telepromptrius…")) { NSWorkspace.shared.open(url) }
+                }
             }
         }
     }

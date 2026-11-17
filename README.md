@@ -66,6 +66,10 @@ python3 tools/check-lang.py   # checks that every language in lang/ has every st
 
 The whole app is a single SwiftUI and AppKit file, `main.swift`. Translations are in `lang/<code>.lproj/Localizable.strings`, and the keys are the Italian strings.
 
+## Support
+
+Telepromptrius is free and will stay free. If it saves you a subscription, you can [buy me a coffee on PayPal](https://paypal.me/enricovezzu) ☕ It also helps to star the repo or share it with someone who films.
+
 ## License
 
 [MIT](LICENSE) © 2026 Enrico Vezzù
