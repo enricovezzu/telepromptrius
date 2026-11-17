@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>it</string>
+	<key>CFBundleDisplayName</key>
+	<string>Telepromptrius</string>
+	<key>CFBundleExecutable</key>
+	<string>Telepromptrius</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>it.enrico.teleprompter</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>it</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>Telepromptrius</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.video</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 Enrico Vezzu</string>
+	<key>TPUpdatePublicKey</key>
+	<string>fmexZMtghiVJ6TV35jbxPS7NSpxH02GZUY0zKSrfex4=</string>
+	<key>TPUpdateRepo</key>
+	<string>enricovezzu/telepromptrius</string>
+</dict>
+</plist>

@@ -1,0 +1,24 @@
+TELEPROMPTRIUS - come installarla
+
+1. Trascina Telepromptrius nella cartella Applicazioni (l'icona qui accanto).
+2. Apri Telepromptrius da Applicazioni. La prima volta il Mac dice che non può
+   aprirla perché non viene da uno sviluppatore registrato: è normale, chiudi l'avviso.
+3. Vai in Impostazioni di Sistema > Privacy e sicurezza, scorri in fondo e
+   premi "Apri comunque" accanto a Telepromptrius. Conferma con la password del Mac.
+4. Fatto: dalle volte successive si apre normalmente.
+
+AGGIORNAMENTI
+Quando esce una versione nuova, all'avvio l'app te lo chiede ("Aggiorna e riavvia")
+e si aggiorna da sola. Puoi controllare anche dal menu Telepromptrius >
+Controlla aggiornamenti.
+
+Serve macOS 26 o successivo (Mac con chip Apple o Intel).
+
+COME SI USA
+- All'avvio vedi i tuoi testi: "Nuovo testo" o "Importa..." (Word, RTF, testo).
+- I testi si salvano da soli in iCloud Drive > Telepromptrius, così li ritrovi
+  su tutti i tuoi Mac e puoi modificarli anche dall'app File di iPhone e iPad.
+- Collega un secondo schermo, sceglilo nella tendina "Schermo esterno" e premi
+  "Proietta": lì il testo appare specchiato nel modo che scegli in "Specchio".
+- Spazio avvia e ferma lo scorrimento, le frecce su e giù cambiano la velocità,
+  il trackpad scorre il testo a mano, Esc chiude lo schermo esteso.
