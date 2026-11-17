@@ -1231,6 +1231,25 @@ struct ControlView: View {
 struct LibraryView: View {
     @ObservedObject var s: TeleState
     private let columns = [GridItem(.adaptive(minimum: 300, maximum: 420), spacing: 18)]
+    private let donateURL = (Bundle.main.object(forInfoDictionaryKey: "TPDonateURL") as? String).flatMap(URL.init(string:))
+
+    /// Invito discreto a sostenere il progetto, in fondo alla libreria.
+    private func supportBar(_ url: URL) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "heart.fill").foregroundStyle(.pink)
+            Text(L("Telepromptrius è gratis e lo resterà.")).foregroundStyle(.secondary)
+            Button { NSWorkspace.shared.open(url) } label: {
+                Label(L("Offrimi un caffè"), systemImage: "cup.and.saucer.fill")
+            }
+            .buttonStyle(.glass)
+            .help(url.absoluteString)
+        }
+        .font(.callout)
+        .padding(.leading, 18).padding(.trailing, 6).padding(.vertical, 6)
+        .glassEffect(.regular, in: .capsule)
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 18)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
@@ -1247,6 +1266,7 @@ struct LibraryView: View {
                 }
                 .scrollIndicators(.hidden)
             }
+            if let url = donateURL { supportBar(url) }
         }
         .padding(.horizontal, 32).padding(.top, 20)
         .alert(L("Rinomina testo"), isPresented: Binding(get: { s.renameID != nil }, set: { if !$0 { s.renameID = nil } })) {
