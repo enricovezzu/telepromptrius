@@ -1372,6 +1372,102 @@ struct LibraryView: View {
 
 /// Controlla l'ultima release su GitHub, scarica il pacchetto .zip, verifica la firma Ed25519
 /// con la chiave pubblica scritta in Info.plist e sostituisce l'app, poi la riavvia.
+/// Finestra "È disponibile una nuova versione" in stile Liquid Glass.
+enum UpdateChoice { case update, later, skip }
+
+enum UpdateWindow {
+    private static var window: NSWindow?
+
+    static func show(version: String, current: String, notes: [String], done: @escaping (UpdateChoice) -> Void) {
+        window?.close()
+        let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
+                         styleMask: [.titled, .closable, .fullSizeContentView], backing: .buffered, defer: false)
+        w.titlebarAppearsTransparent = true
+        w.titleVisibility = .hidden
+        w.isMovableByWindowBackground = true
+        w.isReleasedWhenClosed = false
+        w.title = "Aggiornamento disponibile"
+        w.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        w.standardWindowButton(.zoomButton)?.isHidden = true
+        let finish: (UpdateChoice) -> Void = { c in w.close(); window = nil; done(c) }
+        let host = NSHostingView(rootView: UpdateView(version: version, current: current, notes: notes, act: finish))
+        let bg = NSVisualEffectView()
+        bg.material = .underWindowBackground
+        bg.blendingMode = .behindWindow
+        bg.state = .active
+        host.translatesAutoresizingMaskIntoConstraints = false
+        bg.addSubview(host)
+        NSLayoutConstraint.activate([host.leadingAnchor.constraint(equalTo: bg.leadingAnchor),
+                                     host.trailingAnchor.constraint(equalTo: bg.trailingAnchor),
+                                     host.topAnchor.constraint(equalTo: bg.topAnchor),
+                                     host.bottomAnchor.constraint(equalTo: bg.bottomAnchor)])
+        w.contentView = bg
+        w.setContentSize(host.fittingSize)
+        w.center()
+        window = w
+        w.makeKeyAndOrderFront(nil)
+    }
+}
+
+struct UpdateView: View {
+    let version: String
+    let current: String
+    let notes: [String]
+    let act: (UpdateChoice) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable().frame(width: 68, height: 68)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("NUOVA VERSIONE").font(.caption.weight(.semibold)).foregroundStyle(.tint)
+                    Text("Telepromptrius \(version)").font(.title2.weight(.bold))
+                    Text("Ora hai la versione \(current)").font(.callout).foregroundStyle(.secondary)
+                }
+            }
+            if !notes.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Cosa c'è di nuovo").font(.headline)
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 10) {
+                            ForEach(notes.indices, id: \.self) { i in
+                                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                                    Image(systemName: "sparkle").font(.caption).foregroundStyle(.tint)
+                                    Text(notes[i]).fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .scrollBounceBehavior(.basedOnSize)
+                    .frame(maxHeight: 220)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .glassEffect(.regular, in: .rect(cornerRadius: 20))
+            }
+            HStack(spacing: 10) {
+                Button("Salta questa versione") { act(.skip) }
+                    .buttonStyle(.glass)
+                Spacer()
+                Button("Più tardi") { act(.later) }
+                    .buttonStyle(.glass)
+                    .keyboardShortcut(.cancelAction)
+                Button("Aggiorna e riavvia") { act(.update) }
+                    .buttonStyle(.glassProminent)
+                    .keyboardShortcut(.defaultAction)
+            }
+            .controlSize(.large)
+        }
+        .padding(.horizontal, 26)
+        .padding(.top, 26)
+        .padding(.bottom, 24)
+        .frame(width: 480)
+    }
+}
+
 /// Nessun dato dell'utente viene inviato: solo una richiesta anonima all'API pubblica di GitHub.
 final class Updater {
     static let shared = Updater()
@@ -1436,19 +1532,16 @@ final class Updater {
 
     private func offer(_ rel: Release, version: String) {
         if env["TP_UPDATE_AUTOINSTALL"] == "1" { install(rel); return }
-        let a = NSAlert()
-        a.messageText = "È disponibile Telepromptrius \(version)"
-        var notes = (rel.body ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-        if notes.count > 700 { notes = String(notes.prefix(700)) + "…" }
-        a.informativeText = "Hai la versione \(current)." + (notes.isEmpty ? "" : "\n\nNovità:\n\(notes)")
-        a.addButton(withTitle: "Aggiorna e riavvia")
-        a.addButton(withTitle: "Più tardi")
-        a.addButton(withTitle: "Salta questa versione")
+        let lines = (rel.body ?? "").components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespaces).trimmingCharacters(in: CharacterSet(charactersIn: "-*•· ")) }
+            .filter { !$0.isEmpty }
         NSApp.activate()
-        switch a.runModal() {
-        case .alertFirstButtonReturn: install(rel)
-        case .alertThirdButtonReturn: UserDefaults.standard.set(version, forKey: "skippedVersion")
-        default: break
+        UpdateWindow.show(version: version, current: current, notes: Array(lines.prefix(15))) { choice in
+            switch choice {
+            case .update: self.install(rel)
+            case .skip: UserDefaults.standard.set(version, forKey: "skippedVersion")
+            case .later: break
+            }
         }
     }
 
