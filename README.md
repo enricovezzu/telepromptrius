@@ -7,6 +7,10 @@
     <img src="https://img.shields.io/badge/Download%20for%20Mac-Telepromptrius.dmg-0A84FF?style=for-the-badge&logo=apple&logoColor=white" alt="Download for Mac" height="44">
   </a>
   <br><sub>Free and open source · macOS 26 or later · Apple silicon and Intel</sub>
+  <br><br>
+  <a href="https://paypal.me/enricovezzu">
+    <img src="https://img.shields.io/badge/%E2%99%A5%20Buy%20me%20a%20coffee-9D365D?style=flat-square" alt="Buy me a coffee via PayPal" height="24">
+  </a>
 </p>
 
 **A free teleprompter for the Mac.** You read the script straight on your own screen. On the external display under the teleprompter glass, it scrolls mirrored, so it reads correctly in the reflection.
@@ -68,7 +72,7 @@ The whole app is a single SwiftUI and AppKit file, `main.swift`. Translations ar
 
 ## Support
 
-Telepromptrius is free and will stay free. If it saves you a subscription, you can [buy me a coffee on PayPal](https://paypal.me/enricovezzu) ☕ It also helps to star the repo or share it with someone who films.
+Telepromptrius is free and will stay free. If it saves you a subscription, you can buy me a coffee on PayPal. It also helps to star the repo or share it with someone who films.
 
 ## License
 
