@@ -7,6 +7,10 @@
     <img src="https://img.shields.io/badge/Scarica%20per%20Mac-Telepromptrius.dmg-0A84FF?style=for-the-badge&logo=apple&logoColor=white" alt="Scarica per Mac" height="44">
   </a>
   <br><sub>Ultima versione · macOS 26 o successivo · chip Apple e Intel</sub>
+  <br><br>
+  <a href="https://paypal.me/enricovezzu">
+    <img src="https://img.shields.io/badge/%E2%99%A5%20Offrimi%20un%20caff%C3%A8-9D365D?style=flat-square" alt="Offrimi un caffè via PayPal" height="24">
+  </a>
 </p>
 
 Teleprompter per Mac: sul tuo schermo il testo è dritto, sullo schermo esteso è specchiato nel modo che scegli
@@ -50,7 +54,7 @@ Prova veloce: `open -a Telepromptrius --args --prompter` apre direttamente l'ult
 
 ## Sostieni il progetto
 
-Telepromptrius è gratis e resterà gratis. Se ti fa risparmiare un abbonamento, puoi [offrirmi un caffè su PayPal](https://paypal.me/enricovezzu) ☕ Aiuta anche mettere una stella al repo o passarlo a chi registra video.
+Telepromptrius è gratis e resterà gratis. Se ti fa risparmiare un abbonamento, puoi offrirmi un caffè su PayPal. Aiuta anche mettere una stella al repo o passarlo a chi registra video.
 
 ## Licenza
 MIT, vedi [LICENSE](LICENSE).
