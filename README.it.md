@@ -16,12 +16,16 @@
 Teleprompter per Mac: sul tuo schermo il testo è dritto, sullo schermo esteso è specchiato nel modo che scegli
 (orizzontale per i teleprompter con vetro, verticale o ruotato di 180°).
 
+<p align="center"><img src="docs/demo.gif" alt="Telepromptrius fa scorrere un copione, con il mini monitor specchiato a destra" width="900"></p>
+
 - Libreria dei testi con ricerca, importazione da Word/RTF/testo
 - Testi sincronizzati in **iCloud Drive → Telepromptrius** (un file `.txt` per testo, modificabili anche da iPhone/iPad)
 - Scorrimento fluido a 120 Hz, trackpad, telecomando da presentazione (Pagina su/giù)
 - Mini monitor che mostra lo schermo esteso come appare davvero
 - Aggiornamenti automatici dalle release di GitHub, con firma verificata
 - In 20 lingue: italiano, inglese, spagnolo, francese, tedesco, portoghese, cinese (semplificato e tradizionale), giapponese, coreano, russo, ucraino, arabo, hindi, turco, olandese, polacco, vietnamita, indonesiano, thailandese
+
+<p align="center"><img src="docs/library.png" alt="La libreria dei testi di Telepromptrius" width="900"></p>
 
 Richiede macOS 26 o successivo (chip Apple o Intel).
 
